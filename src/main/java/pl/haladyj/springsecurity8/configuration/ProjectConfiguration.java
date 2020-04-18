@@ -1,12 +1,15 @@
 package pl.haladyj.springsecurity8.configuration;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -30,6 +33,26 @@ public class ProjectConfiguration extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+    @Bean
+    public UsernamePasswordAuthFilter usernamePasswordAuthFilter(){
+        return new UsernamePasswordAuthFilter();
+    };
+
+    @Bean
+    public TokenAuthFilter tokenAuthFilter(){
+        return new TokenAuthFilter();
+    };
+
+
+    @Bean
+    public InitializingBean initializingBean(){
+        return ()->{
+            SecurityContextHolder.setStrategyName(
+                    SecurityContextHolder.MODE_INHERITABLETHREADLOCAL
+            );
+        };
+    }
+
     @Autowired
     private OtpAuthProvider otpAuthProvider;
 
@@ -39,17 +62,6 @@ public class ProjectConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private TokenAuthProvider tokenAuthProvider;
 
-    @Bean
-    public UsernamePasswordAuthFilter usernamePasswordAuthFilter(){
-        return new UsernamePasswordAuthFilter();
-    };
-
-
-
-    @Bean
-    public TokenAuthFilter tokenAuthFilter(){
-        return new TokenAuthFilter();
-    };
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

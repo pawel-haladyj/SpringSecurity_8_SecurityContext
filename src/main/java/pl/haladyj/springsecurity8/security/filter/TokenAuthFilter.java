@@ -7,6 +7,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import pl.haladyj.springsecurity8.repository.TokenRepository;
 import pl.haladyj.springsecurity8.security.authentication.TokenAuthentication;
 
 import javax.servlet.FilterChain;
@@ -20,13 +21,17 @@ public class TokenAuthFilter extends OncePerRequestFilter {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private TokenRepository tokenRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
         var token = request.getHeader("Authorization");
+        var tokenEntity = tokenRepository.findTokenByTokenhash(token).get();
 
-        Authentication authentication = new TokenAuthentication(token, null);
+        Authentication authentication = new TokenAuthentication(tokenEntity, null);
         var a = authenticationManager.authenticate(authentication);
 
         SecurityContextHolder.getContext().setAuthentication(a);

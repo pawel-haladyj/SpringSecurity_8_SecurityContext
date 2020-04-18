@@ -9,6 +9,8 @@ import org.springframework.stereotype.Component;
 import pl.haladyj.springsecurity8.security.authentication.TokenAuthentication;
 import pl.haladyj.springsecurity8.security.manager.TokenManager;
 
+import java.util.UUID;
+
 @Component
 public class TokenAuthProvider implements AuthenticationProvider {
 
@@ -17,8 +19,9 @@ public class TokenAuthProvider implements AuthenticationProvider {
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        var tokenhash = authentication.getName();
-        System.out.println(tokenhash);
+        var token = authentication.getName();
+        var tokenhash = token.substring(UUID.randomUUID().toString().length()-5,token.length()-1);
+
         var exists = tokenManager.contains(tokenhash);
 
         if (exists) {
